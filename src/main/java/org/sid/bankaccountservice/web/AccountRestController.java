@@ -1,22 +1,25 @@
 package org.sid.bankaccountservice.web;
 
 
+import org.sid.bankaccountservice.dto.BankAccountRequestDTO;
+import org.sid.bankaccountservice.dto.BankAccountResponseDTO;
 import org.sid.bankaccountservice.entities.BankAccount;
 import org.sid.bankaccountservice.repositories.BankAccountRepository;
+import org.sid.bankaccountservice.service.AccountService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/bankAccounts")
 public class AccountRestController {
     private BankAccountRepository bankAccountRepository;
+    private AccountService accountService;
 
-
-    public AccountRestController(BankAccountRepository bankAccountRepository) {
+    public AccountRestController(BankAccountRepository bankAccountRepository, AccountService accountService) {
         this.bankAccountRepository = bankAccountRepository;
+        this.accountService = accountService;
     }
     @GetMapping("/bankAccounts")
     public List<BankAccount> bankAccounts(){
@@ -28,9 +31,8 @@ public class AccountRestController {
                 .orElseThrow(()->new RuntimeException(String.format("Account %s not found",id)));
     }
     @PostMapping("/bankAccounts")
-    public BankAccount save(BankAccount bankAccount){
-        if(bankAccount.getId()==null) bankAccount.setId(UUID.randomUUID().toString());
-        return bankAccountRepository.save(bankAccount);
+    public BankAccountResponseDTO save(@RequestBody BankAccountRequestDTO requestDTO){
+        return accountService.addAccount(requestDTO);
     }
 
     @PutMapping ("/bankAccounts/{id}")
